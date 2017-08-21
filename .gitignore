@@ -1,8 +1,5 @@
 .idea
 .idea/*.*
-src/*.*
-src
 target/*.*
 target
 os-demo-java-restservice.iml
-pom.xml
