@@ -1,0 +1,13 @@
+*********
+* delete all configs,stream,route,services, pods
+*********
+
+$ oc delete all -l app=os-demo-java-restservice
+
+buildconfig "os-demo-java-restservice" deleted
+imagestream "os-demo-java-restservice" deleted
+deploymentconfig "os-demo-java-restservice" deleted
+route "os-demo-java-restservice" deleted
+service "os-demo-java-restservice" deleted
+pod "os-demo-java-restservice-1-6ztw7" deleted
+

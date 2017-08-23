@@ -1,0 +1,198 @@
+***********************************************************
+This is using third party OpenShift spring boot S2I image
+************************************************************
+
+$ oc new-app codecentric/springboot-maven3-centos~https://github.com/evangeros/os-demo-java-restservice.git
+
+--> Found Docker image 505aec5 (6 months old) from Docker Hub for "codecentric/springboot-maven3-centos"
+
+    Spring Boot Maven 3
+    -------------------
+    Platform for building and running Spring Boot applications
+
+    Tags: builder, java, java8, maven, maven3, springboot
+
+    * An image stream will be created as "springboot-maven3-centos:latest" that will track the source image
+    * A source build using source code from https://github.com/evangeros/os-demo-java-restservice.git will be created
+      * The resulting image will be pushed to image stream "os-demo-java-restservice:latest"
+      * Every time "springboot-maven3-centos:latest" changes a new build will be triggered
+    * This image will be deployed in deployment config "os-demo-java-restservice"
+    * Port 8080/tcp will be load balanced by service "os-demo-java-restservice"
+      * Other containers can access this service through the hostname "os-demo-java-restservice"
+
+--> Creating resources ...
+    imagestream "springboot-maven3-centos" created
+    imagestream "os-demo-java-restservice" created
+    buildconfig "os-demo-java-restservice" created
+    deploymentconfig "os-demo-java-restservice" created
+    service "os-demo-java-restservice" created
+--> Success
+    Build scheduled, use 'oc logs -f bc/os-demo-java-restservice' to track its progress.
+    Run 'oc status' to view your app.
+
+
+****************************************
+* Status of the deployment
+****************************************
+
+$ oc status
+
+In project Demo Project (os-poc) on server https://ocpdemo.australiasoutheast.cloudapp.azure.com:443
+
+svc/os-demo-java-restservice - 172.30.156.1:8080
+  dc/os-demo-java-restservice deploys istag/os-demo-java-restservice:latest <-
+    bc/os-demo-java-restservice source builds https://github.com/evangeros/os-demo-java-restservice.git on istag/springboot-maven3-centos:latest
+    deployment #1 deployed 3 minutes ago - 1 pod
+
+View details with 'oc describe <resource>/<name>' or list everything with 'oc get all'.
+
+
+******************************************
+* Details of service deployment
+******************************************
+
+$ oc describe svc/os-demo-java-restservice
+
+Name:                   os-demo-java-restservice
+Namespace:              os-poc
+Labels:                 app=os-demo-java-restservice
+Annotations:            openshift.io/generated-by=OpenShiftNewApp
+Selector:               app=os-demo-java-restservice,deploymentconfig=os-demo-java-restservice
+Type:                   ClusterIP
+IP:                     172.30.156.1
+Port:                   8080-tcp        8080/TCP
+Endpoints:              10.128.4.217:8080
+Session Affinity:       None
+Events:                 <none>
+
+
+********************************************
+* Expose the service externally
+********************************************
+
+$ oc expose svc/os-demo-java-restservice
+
+route "os-demo-java-restservice" exposed
+
+
+*********************************************
+* Details of exposed service accessible via os-demo-java-restservice-os-poc.13.70.146.253.nip.io
+*********************************************
+
+$ oc describe routes/os-demo-java-restservice
+
+Name:                   os-demo-java-restservice
+Namespace:              os-poc
+Created:                6 minutes ago
+Labels:                 app=os-demo-java-restservice
+Annotations:            openshift.io/host.generated=true
+Requested Host:         os-demo-java-restservice-os-poc.13.70.146.253.nip.io
+                          exposed on router router 6 minutes ago
+Path:                   <none>
+TLS Termination:        <none>
+Insecure Policy:        <none>
+Endpoint Port:          8080-tcp
+
+Service:        os-demo-java-restservice
+Weight:         100 (100%)
+Endpoints:      10.128.4.217:8080
+
+
+
+******
+* New status
+*****
+$ oc get all
+
+NAME                          TYPE      FROM      LATEST
+bc/os-demo-java-restservice   Source    Git       1
+
+NAME                                TYPE      FROM          STATUS     STARTED          DURATION
+builds/os-demo-java-restservice-1   Source    Git@aa2def5   Complete   24 minutes ago   4m19s
+
+NAME                          DOCKER REPO                                                        TAGS                           UPDATED
+is/os-demo-java-restservice   docker-registry.default.svc:5000/os-poc/os-demo-java-restservice   latest                         20 minutes ago
+is/springboot-maven3-centos   docker-registry.default.svc:5000/os-poc/springboot-maven3-centos   latest                         24 minutes ago
+
+NAME                          REVISION   DESIRED   CURRENT   TRIGGERED BY
+dc/os-demo-java-restservice   1          1         1         config,image(os-demo-java-restservice:latest)
+
+NAME                            DESIRED   CURRENT   READY     AGE
+rc/os-demo-java-restservice-1   1         1         1         20m
+
+NAME                              HOST/PORT                                              PATH      SERVICES                   PORT        TERMINATION   WILDCARD
+routes/os-demo-java-restservice   os-demo-java-restservice-os-poc.13.70.146.253.nip.io             os-demo-java-restservice   8080-tcp                  None
+
+NAME                           CLUSTER-IP      EXTERNAL-IP   PORT(S)     AGE
+svc/os-demo-java-restservice   172.30.156.1    <none>        8080/TCP    24m
+
+NAME                                  READY     STATUS      RESTARTS   AGE
+po/os-demo-java-restservice-1-build   0/1       Completed   0          24m
+po/os-demo-java-restservice-1-c6gv4   1/1       Running     0          20m
+
+
+***********************************************
+* Autoscale the application horizontally min 1, max 3
+***********************************************
+
+$  oc autoscale dc/os-demo-java-restservice --min 1 --max 3 --cpu-percent=80
+
+deploymentconfig "os-demo-java-restservice" autoscaled
+
+
+*****************************************
+* Current status after the auto scale
+******************************************
+
+$  oc describe dc/os-demo-java-restservice
+
+Name:           os-demo-java-restservice
+Namespace:      os-poc
+Created:        About an hour ago
+Labels:         app=os-demo-java-restservice
+Annotations:    openshift.io/generated-by=OpenShiftNewApp
+Latest Version: 2
+Selector:       app=os-demo-java-restservice,deploymentconfig=os-demo-java-restservice
+Replicas:       3
+Autoscaling:    between 1 and 3 replicas targeting 80% cpu average per pod
+Triggers:       Config, Image(os-demo-java-restservice@latest, auto=true)
+Strategy:       Rolling
+Template:
+Pod Template:
+  Labels:       app=os-demo-java-restservice
+                deploymentconfig=os-demo-java-restservice
+  Annotations:  openshift.io/generated-by=OpenShiftNewApp
+  Containers:
+   os-demo-java-restservice:
+    Image:      docker-registry.default.svc:5000/os-poc/os-demo-java-restservice@sha256:183c3285c096380e07f6fad3a80bcd365ce962abd81fa36e9d4453450ca5556a
+    Port:       8080/TCP
+    Limits:
+      cpu:      200m
+      memory:   400Mi
+    Requests:
+      cpu:              100m
+      memory:           200Mi
+    Environment:        <none>
+    Mounts:             <none>
+  Volumes:              <none>
+
+Deployment #2 (latest):
+        Name:           os-demo-java-restservice-2
+        Created:        9 minutes ago
+        Status:         Complete
+        Replicas:       3 current / 3 desired
+        Selector:       app=os-demo-java-restservice,deployment=os-demo-java-restservice-2,deploymentconfig=os-demo-java-restservice
+        Labels:         app=os-demo-java-restservice,openshift.io/deployment-config.name=os-demo-java-restservice
+        Pods Status:    3 Running / 0 Waiting / 0 Succeeded / 0 Failed
+Deployment #1:
+        Created:        about an hour ago
+        Status:         Complete
+        Replicas:       0 current / 0 desired
+
+Events:
+  FirstSeen     LastSeen        Count   From                            SubObjectPath   Type            Reason                          Message
+  ---------     --------        -----   ----                            -------------   --------        ------                          -------
+  1h            1h              1       deploymentconfig-controller                     Normal          DeploymentCreated               Created new replication controller "os-demo-java-restservice-1" for version 1
+  9m            9m              1       deploymentconfig-controller                     Normal          DeploymentCreated               Created new replication controller "os-demo-java-restservice-2" for version 2
+  6m            6m              1       deploymentconfig-controller                     Normal          ReplicationControllerScaled     Scaled replication controller "os-demo-java-restservice-2" from 842445258316 to 3
+
