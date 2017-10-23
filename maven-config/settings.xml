@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<settings xmlns="http://maven.apache.org/SETTINGS/1.0.0" 
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+          xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0 http://maven.apache.org/xsd/settings-1.0.0.xsd">
+
+  <proxies>
+    <proxy>
+      <active>true</active>
+      <host>pproxy01.transport.nsw.gov.au</host>
+      <port>3128</port>
+      <nonProxyHosts>tbipdev|patlapp2|artifactory</nonProxyHosts>
+    </proxy>
+  </proxies> 
+
+  <profiles>
+    <profile>
+      <id>jarvis</id>
+      <properties>
+      	      <gitignore-filename>.gitignore</gitignore-filename>
+              <artifactory-maven-plugin.publisher.contextUrl>http://artifactory.transport.nsw.gov.au/artifactory/</artifactory-maven-plugin.publisher.contextUrl>
+              <!--<artifactory-maven-plugin.publisher.username>yanf</artifactory-maven-plugin.publisher.username>-->
+              <!--<artifactory-maven-plugin.publisher.password>\{DESede\}nO7jFfAdYF3AbetEzcDSBA==</artifactory-maven-plugin.publisher.password>-->
+              <selenium.grid.url>http://147.200.150.162:4444/wd/hub</selenium.grid.url>
+              <sonar.dynamicAnalysis>reuseReports</sonar.dynamicAnalysis>
+              <sonar.host.url>http://sonar.transport.nsw.gov.au</sonar.host.url>
+              <sonar.jdbc.driver>org.postgresql.Driver</sonar.jdbc.driver>
+              <sonar.jdbc.password>HZSld4Cw</sonar.jdbc.password>
+              <sonar.jdbc.url>jdbc:postgresql://pgitsrc01:5432/sonar</sonar.jdbc.url>
+              <sonar.jdbc.username>sonar</sonar.jdbc.username>
+              <sonar.skipInstall>true</sonar.skipInstall>
+      </properties>
+      <repositories>
+        <!-- comment out this section if you want to access the archetypes from Maven Central 
+             BETWEEN HERE -->
+        <repository>
+          <id>archetype</id>
+          <url>http://artifactory.transport.nsw.gov.au/artifactory/archetypes-release-local</url>
+        </repository>
+        <!-- AND HERE! -->
+        <repository>
+          <snapshots>
+            <enabled>false</enabled>
+          </snapshots>
+          <id>central</id>
+          <name>libs-release</name>
+          <url>http://artifactory.transport.nsw.gov.au/artifactory/libs-release</url>
+        </repository>
+        <repository>
+          <snapshots />
+          <id>snapshots</id>
+          <name>libs-snapshot</name>
+          <url>http://artifactory.transport.nsw.gov.au/artifactory/libs-snapshot</url>
+        </repository>
+      </repositories>
+      <pluginRepositories>
+        <pluginRepository>
+          <snapshots>
+            <enabled>false</enabled>
+          </snapshots>
+          <id>central</id>
+          <name>plugins-release</name>
+          <url>http://artifactory.transport.nsw.gov.au/artifactory/plugins-release</url>
+        </pluginRepository>
+        <pluginRepository>
+          <snapshots />
+          <id>snapshots</id>
+          <name>plugins-snapshot</name>
+          <url>http://artifactory.transport.nsw.gov.au/artifactory/plugins-snapshot</url>
+        </pluginRepository>
+      </pluginRepositories>
+    </profile>
+  </profiles>
+
+  <activeProfiles>
+    <activeProfile>jarvis</activeProfile>
+  </activeProfiles>
+  
+</settings>
