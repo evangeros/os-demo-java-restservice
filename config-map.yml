@@ -3,6 +3,8 @@ apiVersion: v1
 metadata:
   name: os-demo-java-restservice
 data:
+#  alias.name: Ronald E.
   application.properties: |-
     spring.profiles.include: ron
+    alias.name: Ronald
 
