@@ -16,11 +16,16 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class GreetingService {
 
+
+  @Value("${app.name}")
+  private String app;
+  @Value("${db.nameType}")
+  private String dbName;
   @Value("${alias.name}")
   private String aliasName;
 
   @RequestMapping("/api/greeting")
   public String greeting() {
-    return "Hello World: " + aliasName;
+    return "App-profile: @" + app + " [db-name]: @" + dbName + " [config]: @" + aliasName;
   }
 }
